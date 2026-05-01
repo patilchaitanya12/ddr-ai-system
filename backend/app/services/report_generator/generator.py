@@ -17,15 +17,16 @@ def generate_ddr(reasoned_data: Dict) -> Dict:
     additional_notes = []
 
     for area_data in final_analysis:
-        area = area_data["area"]
+        area = area_data.get("area", "unknown")
         issues = area_data.get("issues", [])
         analysis = area_data.get("analysis", {})
 
-        #Property Summary
         for issue in issues:
-            property_summary.add(issue["issue_type"])
+                clean_issue = issue.get("issue_type", "").lower()
+        
+                if clean_issue and clean_issue not in ["unknown", "open"]:
+                    property_summary.add(clean_issue)
 
-        #Area Observations
         descriptions = []
         for issue in issues:
             descriptions.extend(issue.get("descriptions", []))
@@ -33,14 +34,12 @@ def generate_ddr(reasoned_data: Dict) -> Dict:
         area_observations.append({
             "area": area,
             "details": " ".join(descriptions) if descriptions else "Not Available",
-            "images": []  # we can enhance later
+            "images": []
         })
 
-        #Root Causes
         for cause in analysis.get("probable_root_cause", []):
             root_causes.add(cause)
 
-        #Severity
         severity = analysis.get("severity", {})
         severity_list.append({
             "area": area,
@@ -48,15 +47,12 @@ def generate_ddr(reasoned_data: Dict) -> Dict:
             "reason": severity.get("reason", "Not Available")
         })
 
-        #Recommendations
         for action in analysis.get("recommended_actions", []):
             recommendations.add(action)
 
-        #Missing Info
         for missing in analysis.get("missing_information", []):
             missing_info.add(missing)
 
-        #Conflicts → Additional Notes
         for conflict in analysis.get("conflicts", []):
             additional_notes.append(conflict)
 

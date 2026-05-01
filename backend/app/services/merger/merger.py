@@ -1,45 +1,66 @@
-from typing import Dict, List
+from typing import Dict
 from collections import defaultdict
 
 
 def _normalize_text(text: str) -> str:
-    """Basic normalization"""
-    return text.strip().lower()
+    return text.strip().lower() if text else "unknown"
+
+
+def _clean_issue_type(issue: str) -> str:
+    if not issue:
+        return "unknown"
+
+    issue = issue.lower().strip()
+
+    if "damp" in issue:
+        return "dampness"
+    if "leak" in issue:
+        return "leakage"
+    if "crack" in issue:
+        return "cracks"
+    if "seep" in issue:
+        return "seepage"
+    if "hollow" in issue:
+        return "hollowness"
+    if "open" in issue or "joint" in issue:
+        return "tile defect"
+
+    return issue
 
 
 def merge_data(structured_data: Dict) -> Dict:
-    """
-    Merge observations + thermal into area-wise grouped data
-    """
-
-    observations = structured_data.get("observations", [])
-    thermal_data = structured_data.get("thermal_readings", [])
+    if "inspection" in structured_data:
+        observations = structured_data.get("inspection", {}).get("observations", [])
+        thermal_data = structured_data.get("thermal", {}).get("thermal_readings", [])
+    else:
+        observations = structured_data.get("observations", [])
+        thermal_data = structured_data.get("thermal_readings", [])
 
     area_map = defaultdict(lambda: {
         "issues": [],
         "thermal": None
     })
 
-    #Step 1: Process observations
     for obs in observations:
-        area = _normalize_text(obs.get("area", "unknown"))
-        issue_type = _normalize_text(obs.get("issue_type", "unknown"))
+        # Filter bad entries
+        if not obs.get("issue_type") or not obs.get("description"):
+            continue
 
-        # Check if issue already exists
+        area = _normalize_text(obs.get("area"))
+        issue_type = _clean_issue_type(obs.get("issue_type"))
+
         existing_issue = next(
             (i for i in area_map[area]["issues"] if i["issue_type"] == issue_type),
             None
         )
 
         if existing_issue:
-            # Merge location + description
             if obs.get("sub_area"):
                 existing_issue["locations"].add(_normalize_text(obs["sub_area"]))
 
             existing_issue["descriptions"].append(obs.get("description", ""))
 
         else:
-            # Create new issue entry
             area_map[area]["issues"].append({
                 "issue_type": issue_type,
                 "locations": set([_normalize_text(obs.get("sub_area", ""))]),
@@ -47,9 +68,11 @@ def merge_data(structured_data: Dict) -> Dict:
                 "source": obs.get("source", "unknown")
             })
 
-    #Step 2: Attach thermal data
     for therm in thermal_data:
-        area = _normalize_text(therm.get("area", "unknown"))
+        if not therm.get("area"):
+            continue
+
+        area = _normalize_text(therm.get("area"))
 
         area_map[area]["thermal"] = {
             "hotspot_temp": therm.get("hotspot_temp"),
@@ -58,7 +81,6 @@ def merge_data(structured_data: Dict) -> Dict:
             "available": True
         }
 
-    #Step 3: Convert sets → lists (JSON safe)
     final_output = []
 
     for area, data in area_map.items():

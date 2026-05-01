@@ -21,13 +21,17 @@ async def generate_ddr_report(
 
         # 2. Extract structured info
         structured_data = extract_structured_data(parsed_data)
-
+        print("STRUCTURED DATA:", structured_data)
+        print("OBS COUNT:", len(structured_data.get("observations", [])))
+        
         # 3. Merge inspection + thermal
         merged_data = merge_data(structured_data)
+        print("MERGED DATA:", merged_data)
 
         # 4. Run reasoning (LLM / logic)
         reasoned_data = run_reasoning(merged_data)
-
+        print("REASONED DATA:", reasoned_data)
+        
         # 5. Generate final DDR
         ddr_report = generate_ddr(reasoned_data)
 

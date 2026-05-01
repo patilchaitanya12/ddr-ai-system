@@ -2,38 +2,44 @@ import os
 import uuid
 from typing import Dict, List
 
-import fitz  
+import fitz  # PyMuPDF
 from fastapi import UploadFile
 
 
-# Folder to store extracted images
+#Folder to store extracted images(for now in system memeory later can use cdn containers to store images)
 IMAGE_OUTPUT_DIR = "backend/data/raw/images"
 
 
+#Save uploaded file safely
 def _save_uploaded_file(upload_file: UploadFile) -> str:
-    """Save uploaded file temporarily"""
     file_id = str(uuid.uuid4())
     file_path = f"backend/data/raw/{file_id}_{upload_file.filename}"
 
+    content = upload_file.file.read()
+
     with open(file_path, "wb") as f:
-        f.write(upload_file.file.read())
+        f.write(content)
+
+    # Reset pointer (important)
+    upload_file.file.seek(0)
 
     return file_path
 
 
+#Extract text with page markers (better for LLM)
 def _extract_text_from_pdf(pdf_path: str) -> str:
-    """Extract full text from PDF"""
     doc = fitz.open(pdf_path)
-    full_text = ""
+    pages = []
 
-    for page in doc:
-        full_text += page.get_text()
+    for i, page in enumerate(doc):
+        text = page.get_text()
+        pages.append(f"\n--- PAGE {i+1} ---\n{text}")
 
-    return full_text
+    return "\n".join(pages)
 
 
+#Extract images with page reference
 def _extract_images_from_pdf(pdf_path: str, prefix: str) -> List[str]:
-    """Extract images and save them locally"""
     os.makedirs(IMAGE_OUTPUT_DIR, exist_ok=True)
 
     doc = fitz.open(pdf_path)
@@ -50,7 +56,7 @@ def _extract_images_from_pdf(pdf_path: str, prefix: str) -> List[str]:
             image_bytes = base_image["image"]
             image_ext = base_image["ext"]
 
-            image_filename = f"{prefix}_p{page_index}_{img_index}.{image_ext}"
+            image_filename = f"{prefix}_page{page_index+1}_{img_index}.{image_ext}"
             image_path = os.path.join(IMAGE_OUTPUT_DIR, image_filename)
 
             with open(image_path, "wb") as img_file:
@@ -61,14 +67,16 @@ def _extract_images_from_pdf(pdf_path: str, prefix: str) -> List[str]:
     return image_paths
 
 
+
 async def parse_documents(
     inspection_file: UploadFile,
     thermal_file: UploadFile
 ) -> Dict:
     """
     Main parser function:
-    - Saves files
-    - Extracts text + images
+    - Saves uploaded PDFs
+    - Extracts text
+    - Extracts images
     """
 
     #Save files
