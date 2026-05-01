@@ -20,7 +20,7 @@ def merge_data(structured_data: Dict) -> Dict:
         "thermal": None
     })
 
-    # 🔹 Step 1: Process observations
+    #Step 1: Process observations
     for obs in observations:
         area = _normalize_text(obs.get("area", "unknown"))
         issue_type = _normalize_text(obs.get("issue_type", "unknown"))
@@ -47,7 +47,7 @@ def merge_data(structured_data: Dict) -> Dict:
                 "source": obs.get("source", "unknown")
             })
 
-    # 🔹 Step 2: Attach thermal data
+    #Step 2: Attach thermal data
     for therm in thermal_data:
         area = _normalize_text(therm.get("area", "unknown"))
 
@@ -58,7 +58,7 @@ def merge_data(structured_data: Dict) -> Dict:
             "available": True
         }
 
-    # 🔹 Step 3: Convert sets → lists (JSON safe)
+    #Step 3: Convert sets → lists (JSON safe)
     final_output = []
 
     for area, data in area_map.items():

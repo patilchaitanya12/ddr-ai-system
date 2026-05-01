@@ -64,7 +64,7 @@ def extract_structured_data(parsed_data: Dict) -> Dict:
     prompt = _build_extraction_prompt(inspection_text, thermal_text)
 
     response = client.chat.completions.create(
-        model="llama3-70b-8192",  # fast + good quality
+        model="llama-3.1-8b-instant",  
         messages=[
             {"role": "system", "content": "You output only valid JSON."},
             {"role": "user", "content": prompt}
@@ -73,7 +73,7 @@ def extract_structured_data(parsed_data: Dict) -> Dict:
     )
 
     raw_output = response.choices[0].message.content
-
+    print(raw_output)
     try:
         structured_data = json.loads(raw_output)
     except json.JSONDecodeError:

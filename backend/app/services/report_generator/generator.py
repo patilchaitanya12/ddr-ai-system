@@ -21,11 +21,11 @@ def generate_ddr(reasoned_data: Dict) -> Dict:
         issues = area_data.get("issues", [])
         analysis = area_data.get("analysis", {})
 
-        # 🔹 Property Summary
+        #Property Summary
         for issue in issues:
             property_summary.add(issue["issue_type"])
 
-        # 🔹 Area Observations
+        #Area Observations
         descriptions = []
         for issue in issues:
             descriptions.extend(issue.get("descriptions", []))
@@ -36,11 +36,11 @@ def generate_ddr(reasoned_data: Dict) -> Dict:
             "images": []  # we can enhance later
         })
 
-        # 🔹 Root Causes
+        #Root Causes
         for cause in analysis.get("probable_root_cause", []):
             root_causes.add(cause)
 
-        # 🔹 Severity
+        #Severity
         severity = analysis.get("severity", {})
         severity_list.append({
             "area": area,
@@ -48,15 +48,15 @@ def generate_ddr(reasoned_data: Dict) -> Dict:
             "reason": severity.get("reason", "Not Available")
         })
 
-        # 🔹 Recommendations
+        #Recommendations
         for action in analysis.get("recommended_actions", []):
             recommendations.add(action)
 
-        # 🔹 Missing Info
+        #Missing Info
         for missing in analysis.get("missing_information", []):
             missing_info.add(missing)
 
-        # 🔹 Conflicts → Additional Notes
+        #Conflicts → Additional Notes
         for conflict in analysis.get("conflicts", []):
             additional_notes.append(conflict)
 

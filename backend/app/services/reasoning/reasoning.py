@@ -46,7 +46,7 @@ def _run_llm_reasoning(area_data: Dict) -> Dict:
     prompt = _build_reasoning_prompt(area_data)
 
     response = client.chat.completions.create(
-        model="llama3-70b-8192",
+        model="llama-3.1-8b-instant",
         messages=[
             {"role": "system", "content": "You output only valid JSON."},
             {"role": "user", "content": prompt}
