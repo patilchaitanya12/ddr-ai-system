@@ -5,7 +5,7 @@ from backend.app.services.parser.parser import parse_documents
 from backend.app.services.extractor.extractor import extract_structured_data
 from backend.app.services.merger.merger import merge_data
 from backend.app.services.reasoning.reasoning import run_reasoning
-#from backend.app.services.report_generator.generator import generate_ddr
+from backend.app.services.report_generator.generator import generate_ddr
 
 router = APIRouter()
 
