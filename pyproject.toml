@@ -1,0 +1,17 @@
+[project]
+name = "ddr-ai-system"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.136.1",
+    "groq>=1.2.0",
+    "pdfplumber>=0.11.9",
+    "pillow>=12.2.0",
+    "pydantic>=2.13.3",
+    "pymupdf>=1.27.2.3",
+    "python-multipart>=0.0.27",
+    "streamlit>=1.57.0",
+    "uvicorn>=0.46.0",
+]
