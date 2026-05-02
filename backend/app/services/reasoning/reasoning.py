@@ -55,7 +55,7 @@ DATA:
 """
 
 
-# 🤖 Run LLM reasoning
+#Run LLM reasoning
 def _run_llm_reasoning(area_data: Dict) -> Dict:
     prompt = _build_reasoning_prompt(area_data)
 
@@ -105,14 +105,15 @@ def run_reasoning(merged_data: Dict) -> Dict:
 
     for area in area_list:
         reasoning = _run_llm_reasoning(area)
-
+        print("REASONING IMAGES:", area.get("images", [])[:2])
         results.append({
             "area": area.get("area", "unknown"),
             "issues": area.get("issues", []),
             "thermal": area.get("thermal", {}),
+            "images": area.get("images", []),
             "analysis": reasoning
         })
-
+        print("REASONING IMAGES:", area.get("images", [])[:2])
     return {
         "final_analysis": results
     }

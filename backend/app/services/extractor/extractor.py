@@ -76,4 +76,8 @@ def extract_structured_data(parsed_data: Dict) -> Dict:
     print("FINAL STRUCTURED DATA:", structured_data)
     print("OBS COUNT:", len(structured_data.get("observations", [])))
 
-    return structured_data
+    return {
+        "observations": structured_data.get("observations", []),
+        "thermal_readings": structured_data.get("thermal_readings", []),
+        "images": parsed_data.get("inspection", {}).get("images", [])
+    }

@@ -24,6 +24,9 @@ async def generate_ddr_report(
         print("STRUCTURED DATA:", structured_data)
         print("OBS COUNT:", len(structured_data.get("observations", [])))
         
+        structured_data["images"] = parsed_data["inspection"]["images"]
+        structured_data["pages"] = parsed_data["inspection"]["pages"]
+        
         # 3. Merge inspection + thermal
         merged_data = merge_data(structured_data)
         print("MERGED DATA:", merged_data)
